@@ -43,10 +43,12 @@ function(request, sender, sendResponse) {
 $(document).click(function(){
     //Reset things
     $(document).off("mousemove");
+    $(document).off("click");
     firstselection = true;
-    //remove border and leftover style tag
-    previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? $(currentElement).css("border", previousElementBorder) : $(currentElement).css("border","0px");
-    $(currentElement).removeAttr("style");
+    try{
+        currentElement.removeAttribute("style");
+    }
+    catch{}
 
     StoreElement();
 })
@@ -82,7 +84,7 @@ function StoreElement(){
 
         }
         chrome.storage.sync.get([domain], function(items){
-            console.log(items);
+            console.log(JSON.parse(items[domain]));
         });
     });
 }
@@ -94,5 +96,6 @@ function createNodeToBeSaved(node){
         currentElementString.removeChild(child); 
         child = currentElementString.lastElementChild; 
     }
-    return currentElementString.outerHTML;
+    $(currentElementString).removeAttr("style");
+    return JSON.stringify(currentElementString.outerHTML);
 }
