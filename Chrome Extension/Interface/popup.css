@@ -1,0 +1,11 @@
+body, html{
+    width: auto;
+    height: auto;
+}
+.title{
+    font-size: 20px;
+    white-space: nowrap;
+}
+.options{
+    font-size: 15px;
+}
