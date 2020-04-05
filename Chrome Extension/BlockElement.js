@@ -1,47 +1,16 @@
-/* var overlay =  $('<div></div>',{id: "8b29f35f-6cc6"});
-$(overlay).css(({
-    position: 'absolute',
-    display:'block',
-    width: '100%',
-    height: '100%',
-    top: '0',
-    left: '0',
-    right: '0',
-    bottom: '0',
-    background: 'rgba(55,22,124,0.5)',
-    zindex: '1000000',
-    cursor: 'pointer'}));
-
-var CurrentItem;
-$('body').mousemove(function(evt){
-    CurrentItem = evt.target
-});
-
-            $(document).click(function(){
-                isSelecting = false;
-                clearInterval(selecting);
-            })
-
-            selecting = setInterval(function(){
-                $("#8b29f35f-6cc6").remove();
-                currentElement = CurrentItem;
-                $(currentElement).append(overlay);
-
-                */
-
-
+var pageURL = "";
 var previousElementBorder;
 var previousElement;
+var currentElement;
 var firstselection = true;
+
 
 //Listen for a message from popup.js
 chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
     if (request.beginSelection == true){
-        //Stop selecting elements
-        $(document).click(function(){
-            $(document).off("mousemove");
-        })
+        pageURL = request.url;
+
         //Start selecting elements
         $(document).mousemove(function(mouse){
             currentElement = mouse.target;
@@ -57,15 +26,33 @@ function(request, sender, sendResponse) {
                     if(currentElement.style.border != "2px dotted tomato"){
                         previousElement.style.border = previousElementBorder;
                         //previousElement.style.filter = "none";
-                        $(previousElement).css("margin", "+=2px");
+                        //$(previousElement).css("margin", "+=2px");
                         previousElement = currentElement;
                         previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? previousElement.style.border : "0px";
                         currentElement.style.border = "2px dotted tomato";
                         //currentElement.style.filter = "blur(2px)";
-                        $(currentElement).css("margin", "-=2px");
+                        //$(currentElement).css("margin", "-=2px");
                     }
                 }
             } 
         }); 
     }
 });
+
+//Stop selecting elements
+$(document).click(function(){
+    $(document).off("mousemove");
+    firstselection = true;
+    previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? $(previousElement).css("border", previousElementBorder) : "0px";
+
+})
+
+function createNodeToBeSaved(node){
+    var currentElementString = node.cloneNode(true);
+    var child = currentElementString.lastElementChild;  
+    while (child) { 
+        currentElementString.removeChild(child); 
+        child = currentElementString.lastElementChild; 
+    }
+    return currentElementString.outerHTML;
+}

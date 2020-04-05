@@ -2,7 +2,7 @@
     "name": "Olivers Adblocker",
     "version": "1.0",
     "description": "Final Year Project - Create an online adblocker - Oliver Storey-Young C1635943",
-    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "permissions": ["activeTab", "declarativeContent", "storage", "tabs"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
