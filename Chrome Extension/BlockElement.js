@@ -41,11 +41,51 @@ function(request, sender, sendResponse) {
 
 //Stop selecting elements
 $(document).click(function(){
+    //Reset things
     $(document).off("mousemove");
     firstselection = true;
-    previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? $(previousElement).css("border", previousElementBorder) : "0px";
+    //remove border and leftover style tag
+    previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? $(currentElement).css("border", previousElementBorder) : $(currentElement).css("border","0px");
+    $(currentElement).removeAttr("style");
 
+    StoreElement();
 })
+
+function StoreElement(){
+    //Cut domain from url and make json object
+    var domain = String(new URL(pageURL).hostname);
+    var toStore = {};
+    var nodeToSave = createNodeToBeSaved(currentElement);
+    toStore[domain] = nodeToSave;
+
+    //check if any elements already stored
+    chrome.storage.sync.get([domain],function(items){
+        if(jQuery.isEmptyObject(items)){
+
+            chrome.storage.sync.set(toStore, function(){
+                window.alert("Now Blocking:\n" + nodeToSave);
+            });
+        }else{
+            var newArr = [];
+            if(Array.isArray(items[domain])){
+                items[domain].forEach(element => {
+                    newArr.push(element);
+                }); 
+            }else{
+                newArr.push(items[domain]);
+            }
+            newArr.push(nodeToSave);
+            toStore[domain] = newArr;
+            chrome.storage.sync.set(toStore, function(){
+                window.alert("Now Blocking:\n" + nodeToSave);
+            });
+
+        }
+        chrome.storage.sync.get([domain], function(items){
+            console.log(items);
+        });
+    });
+}
 
 function createNodeToBeSaved(node){
     var currentElementString = node.cloneNode(true);
