@@ -1,59 +1,84 @@
-var pageURL = "";
-var previousElementBorder;
-var previousElement;
+var domain = new URL(window.location.href).hostname;
 var currentElement;
-var firstselection = true;
+
+chrome.storage.sync.get([domain], function(items){
+    console.log(items);
+});
 
 
 //Listen for a message from popup.js
 chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
     if (request.beginSelection == true){
-        pageURL = request.url;
-
         //Start selecting elements
         $(document).mousemove(function(mouse){
-            currentElement = mouse.target;
-            //set variables that are undefined
-            if(firstselection){
-                previousElement = currentElement;
-                previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? currentElement.style.border : "0px";
-                firstselection = false;
+            $(currentElement).removeAttr("style");
+            var currentmouseover = mouse.target;
+            while(currentmouseover.nodeName != "BODY" && (currentmouseover.id == "" && typeof $(currentmouseover).attr("class") === 'undefined' )){
+                currentmouseover = currentmouseover.parentNode;
             }
-            //Apply border to new elemnt if moused over
-            else{
-                if(typeof currentElement.style.border != 'undefined'){
-                    if(currentElement.style.border != "2px dotted tomato"){
-                        previousElement.style.border = previousElementBorder;
-                        //previousElement.style.filter = "none";
-                        //$(previousElement).css("margin", "+=2px");
-                        previousElement = currentElement;
-                        previousElementBorder = (typeof currentElement.style.border !== 'undefined') ? previousElement.style.border : "0px";
-                        currentElement.style.border = "2px dotted tomato";
-                        //currentElement.style.filter = "blur(2px)";
-                        //$(currentElement).css("margin", "-=2px");
-                    }
-                }
-            } 
+            currentElement = currentmouseover;
+            $(currentElement).css("border", "2px dotted tomato");
+
         }); 
     }
+
+    $(document).click(function(){
+        //Reset things
+        $(document).off("mousemove");
+        $(document).off("click");
+        $(currentElement).removeAttr("style");
+        
+    
+        StoreElements();
+        location.reload();
+    })
 });
 
-//Stop selecting elements
-$(document).click(function(){
-    //Reset things
-    $(document).off("mousemove");
-    $(document).off("click");
-    firstselection = true;
-    try{
-        currentElement.removeAttribute("style");
+
+
+function StoreElements(){
+    //storage prep
+    var classesToBlock = "";
+    var idToBlock = "";
+    if($(currentElement).attr("class") !== 'undefined'){
+        $(currentElement).prop("classList").forEach(element => {
+            classesToBlock += "." + element;
+        });
     }
-    catch{}
+    idToBlock = (currentElement.id == "") ? "" : ("#" + currentElement.id);
+    var Data = {};
 
-    StoreElement();
-})
+    //storage
+    chrome.storage.sync.get([domain],function(result){
+        if(jQuery.isEmptyObject(result)){
+            Data[domain] = {classes:[], ids:[]}
+            if(classesToBlock != ""){
+                Data[domain].classes.push(classesToBlock);
+            }
+            if(idToBlock != ""){
+                Data[domain].ids.push(idToBlock);
+            }
+            chrome.storage.sync.set(Data, function(){
+                console.log("added new entry");
+            });
+        }else{
+            if(classesToBlock != "" && result[domain].classes.includes(classesToBlock) == false){
+                result[domain].classes.push(classesToBlock);
+            }
+            if(idToBlock != "" && result[domain].ids.includes(idToBlock) == false){
+                result[domain].ids.push(idToBlock);
+            }
+            chrome.storage.sync.set(result, function(){
+                console.log("updated entries");
+            });
+        }
 
-function StoreElement(){
+    });
+
+}
+
+/*function StoreElement(){
     //Cut domain from url and make json object
     var domain = String(new URL(pageURL).hostname);
     var toStore = {};
@@ -87,15 +112,4 @@ function StoreElement(){
             console.log(JSON.parse(items[domain]));
         });
     });
-}
-
-function createNodeToBeSaved(node){
-    var currentElementString = node.cloneNode(true);
-    var child = currentElementString.lastElementChild;  
-    while (child) { 
-        currentElementString.removeChild(child); 
-        child = currentElementString.lastElementChild; 
-    }
-    $(currentElementString).removeAttr("style");
-    return JSON.stringify(currentElementString.outerHTML);
-}
+}*/
