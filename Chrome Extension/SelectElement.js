@@ -83,9 +83,7 @@ function StoreElement(){
             });
 
         }
-        chrome.storage.sync.get([domain], function(items){
-            console.log(JSON.parse(items[domain]));
-        });
+        location.reload();
     });
 }
 
