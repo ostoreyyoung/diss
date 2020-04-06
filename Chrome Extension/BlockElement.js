@@ -1,6 +1,8 @@
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-      if (request.message == "text"){
-          window.alert("gotit");
-      }
+var domain = new URL(window.location.href).hostname;
+chrome.storage.sync.get([domain], function(result){
+    for(var key in result[domain]){
+        result[domain][key].forEach(item => {
+            $(item).css("display","none");
+        });
+    }
 });
