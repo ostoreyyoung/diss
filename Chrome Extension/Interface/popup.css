@@ -9,3 +9,16 @@ body, html{
 .options{
     font-size: 15px;
 }
+ol{
+    list-style: none;
+    padding:0;
+}
+li:hover{
+    background: #00000050;
+    cursor: pointer;
+}
+li{
+    border:1px solid #2f2f2f;
+    margin-bottom: 5px;
+    padding: 2px;
+}

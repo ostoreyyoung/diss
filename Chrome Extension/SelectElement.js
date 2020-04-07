@@ -40,27 +40,41 @@ function StoreElements(){
     }
     idToBlock = (currentElement.id == "") ? "" : ("#" + currentElement.id);
     var Data = {};
+    var Structure = {};
 
     //storage
-    chrome.storage.sync.get([domain],function(result){
+    chrome.storage.sync.get(["Websites"],function(result){
         //if nothing stored, make new object else edit old
         if(jQuery.isEmptyObject(result)){
-            Data[domain] = {classes:[], ids:[]}
+            Data[domain] = {classes:[], ids:[]};
+            Structure["Websites"] = Data;
             if(classesToBlock != ""){
-                Data[domain].classes.push(classesToBlock);
+                Structure["Websites"][domain].classes.push(classesToBlock);
             }
             if(idToBlock != ""){
-                Data[domain].ids.push(idToBlock);
+                Structure["Websites"][domain].ids.push(idToBlock);
             }
-            chrome.storage.sync.set(Data, function(){
+            chrome.storage.sync.set(Structure, function(){
                 console.log("added new entry");
             });
-        }else{
-            if(classesToBlock != "" && result[domain].classes.includes(classesToBlock) == false){
-                result[domain].classes.push(classesToBlock);
+        }else if(typeof result["Websites"][domain] === 'undefined'){
+            result["Websites"][domain] = {classes:[], ids:[]}
+            if(classesToBlock != ""){
+                result["Websites"][domain].classes.push(classesToBlock);
             }
-            if(idToBlock != "" && result[domain].ids.includes(idToBlock) == false){
-                result[domain].ids.push(idToBlock);
+            if(idToBlock != ""){
+                result["Websites"][domain].ids.push(idToBlock);
+            }
+            chrome.storage.sync.set(result, function(){
+                console.log("updated entries");
+            });
+        }
+        else{
+            if(classesToBlock != "" && result["Websites"][domain].classes.includes(classesToBlock) == false){
+                result["Websites"][domain].classes.push(classesToBlock);
+            }
+            if(idToBlock != "" && result["Websites"][domain].ids.includes(idToBlock) == false){
+                result["Websites"][domain].ids.push(idToBlock);
             }
             chrome.storage.sync.set(result, function(){
                 console.log("updated entries");
