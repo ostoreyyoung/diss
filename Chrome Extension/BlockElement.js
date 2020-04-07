@@ -1,4 +1,4 @@
-var domain = new URL(window.location.href).hostname;
+/* var domain = new URL(window.location.href).hostname;
 chrome.storage.sync.get(["Websites"], function(result){
     if(!(jQuery.isEmptyObject(result))){
         if(typeof result["Websites"][domain] !== 'undefined')
@@ -8,7 +8,7 @@ chrome.storage.sync.get(["Websites"], function(result){
             });
         }
     }
-});
+}); */
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       if (request.reload == true)
