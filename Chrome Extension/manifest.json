@@ -12,14 +12,9 @@
     },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
-            "run_at": "document_end",
-            "js": ["BlockElement.js","SelectElement.js"]
-        },
-        {
             "matches":["<all_urls>"],
             "run_at": "document_start",
-            "js": ["jquery.js","BlockElementWithCss.js"]
+            "js": ["jquery.js","BlockElement.js", "SelectElement.js"]
         }
     ],
     "manifest_version": 2
