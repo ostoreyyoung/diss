@@ -35,10 +35,10 @@ function StoreElements(){
     var idToBlock = "";
     if($(currentElement).attr("class") !== 'undefined'){
         $(currentElement).prop("classList").forEach(element => {
-            classesToBlock += "." + element;
+            classesToBlock += "." + CSS.escape(element);
         });
     }
-    idToBlock = (currentElement.id == "") ? "" : ("#" + currentElement.id);
+    idToBlock = (currentElement.id == "") ? "" : ("#" + CSS.escape(currentElement.id));
     var Data = {};
     var Structure = {};
 
