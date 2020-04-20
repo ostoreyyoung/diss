@@ -13,10 +13,21 @@ function injectCSS(){
                             cssString += item + ", ";
                         });
                     }
-                    cssString = cssString.slice(0, -2) + " { display: none !important }"
-                    style.innerHTML = cssString;
-                    console.log(style);
-                    document.head.appendChild(style);
+                    
+                    chrome.storage.sync.get(["Settings"], function(result){
+                        cssString = cssString.slice(0, -2);
+
+                        //Check if the settings are set to hide or collapse;
+                        if(result["Settings"]["BlockType"] == "Display"){
+                            cssString += " { display: none !important }";
+                        }else{
+                            cssString += " { visibility: hidden !important }";
+                        }
+
+                        style.innerHTML = cssString;
+                        console.log(style);
+                        document.head.appendChild(style);
+                    });
                 }
             }
         });
