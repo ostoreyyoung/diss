@@ -1,8 +1,20 @@
-document.addEventListener('DOMSubtreeModified', injectCSS);
+var currentDomain = new URL(window.location.href).hostname;
+
+chrome.storage.sync.get(["Settings"], function(whitelistCheck){
+    if(!whitelistCheck["Settings"]["Whitelist"].includes(currentDomain)){
+        document.addEventListener('DOMSubtreeModified', injectCSS);
+    }
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      if (request.reload == true)
+        location.reload();   
+});
+
 function injectCSS(){
     if(document.head){
         document.removeEventListener('DOMSubtreeModified', injectCSS);
-        var domain = new URL(window.location.href).hostname;
+
         chrome.storage.sync.get(["Websites"], function(result){
             if(!(jQuery.isEmptyObject(result))){
                 if(typeof result["Websites"][domain] !== 'undefined'){
@@ -33,7 +45,3 @@ function injectCSS(){
         });
     }
 };
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-      if (request.reload == true)
-        location.reload();   
-});
