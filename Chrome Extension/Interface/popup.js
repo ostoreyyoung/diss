@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    
 
     //Check the radio button based off of the stored value
     chrome.storage.sync.get(["Settings"], function(result){
@@ -14,7 +15,11 @@ $(document).ready(function(){
     $('#BlockDisplay').click(function(){
         chrome.storage.sync.get(["Settings"],function(result){
             result["Settings"]["BlockType"] = "Display";
-            chrome.storage.sync.set(result);
+            chrome.storage.sync.set(result, function(){
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    chrome.tabs.sendMessage(tabs[0].id, {reload: true});
+                });
+            });
         });
     });
 
@@ -22,7 +27,11 @@ $(document).ready(function(){
     $('#BlockVisibility').click(function(){
         chrome.storage.sync.get(["Settings"],function(result){
             result["Settings"]["BlockType"] = "Visibility";
-            chrome.storage.sync.set(result);
+            chrome.storage.sync.set(result, function(){
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    chrome.tabs.sendMessage(tabs[0].id, {reload: true});
+                });
+            });
         });
     });
 
