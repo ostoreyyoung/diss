@@ -39,25 +39,11 @@ function StoreElements(){
         });
     }
     idToBlock = (currentElement.id == "") ? "" : ("#" + CSS.escape(currentElement.id));
-    var Data = {};
-    var Structure = {};
 
     //storage
     chrome.storage.sync.get(["Websites"],function(result){
         //if nothing stored, make new object else edit old
-        if(jQuery.isEmptyObject(result)){
-            Data[domain] = {classes:[], ids:[]};
-            Structure["Websites"] = Data;
-            if(classesToBlock != ""){
-                Structure["Websites"][domain].classes.push(classesToBlock);
-            }
-            if(idToBlock != ""){
-                Structure["Websites"][domain].ids.push(idToBlock);
-            }
-            chrome.storage.sync.set(Structure, function(){
-                console.log("added new entry");
-            });
-        }else if(typeof result["Websites"][domain] === 'undefined'){
+        if(typeof result["Websites"][domain] === 'undefined'){
             result["Websites"][domain] = {classes:[], ids:[]}
             if(classesToBlock != ""){
                 result["Websites"][domain].classes.push(classesToBlock);
@@ -65,20 +51,15 @@ function StoreElements(){
             if(idToBlock != ""){
                 result["Websites"][domain].ids.push(idToBlock);
             }
-            chrome.storage.sync.set(result, function(){
-                console.log("updated entries");
-            });
-        }
-        else{
+            chrome.storage.sync.set(result);
+        }else{
             if(classesToBlock != "" && result["Websites"][domain].classes.includes(classesToBlock) == false){
                 result["Websites"][domain].classes.push(classesToBlock);
             }
             if(idToBlock != "" && result["Websites"][domain].ids.includes(idToBlock) == false){
                 result["Websites"][domain].ids.push(idToBlock);
             }
-            chrome.storage.sync.set(result, function(){
-                console.log("updated entries");
-            });
+            chrome.storage.sync.set(result);
         }
     });
 }

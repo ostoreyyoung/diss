@@ -18,7 +18,7 @@ $(document).ready(function(){
     })
 
     $('#ResetBlockedAll').click(function(){
-        chrome.storage.sync.remove("Websites",function(){
+        chrome.storage.sync.set({"Websites": {}} ,function(){
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                 chrome.tabs.sendMessage(tabs[0].id, {reload: true});
             });
