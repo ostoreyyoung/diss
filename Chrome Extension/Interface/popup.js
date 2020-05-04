@@ -5,6 +5,7 @@ $(document).ready(function(){
             chrome.tabs.sendMessage(tabs[0].id, {reload: true});
         });
     }
+    
 
     //Initialise settings
     chrome.storage.sync.get(["Settings"], function(result){
@@ -29,6 +30,50 @@ $(document).ready(function(){
         });
 
     });
+
+    chrome.storage.sync.get(["Websites"], function(result){
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            var currentDomain = new URL(tabs[0].url).hostname;
+            if(typeof result["Websites"][currentDomain] !== 'undefined'){
+                var allItems = (result["Websites"][currentDomain].classes).concat((result["Websites"][currentDomain].ids));
+                document.getElementById("blockedCount").innerHTML = "Blocked Items: " + allItems.length;
+                allItems.forEach(element => {
+                    var tr = document.createElement('tr');
+                    var td = document.createElement('td');
+                    var btn = document.createElement('button');
+                    btn.innerHTML = element;
+                    btn.onclick = function () {
+                        console.log(result);
+                        if(this.innerHTML.substr(0,1) != '.'){
+                            var index = result["Websites"][currentDomain].ids.indexOf(element);
+                            result["Websites"][currentDomain].ids.splice(index,1);
+                        }
+                        else{
+                            var index = result["Websites"][currentDomain].classes.indexOf(element);
+                            console.log(element);
+                            result["Websites"][currentDomain].classes.splice(index,1);
+                        }
+                        console.log(result);
+                        chrome.storage.sync.set(result);
+
+
+                        var currRow = this.parentElement.parentElement;
+                        this.parentElement.parentElement.parentElement.removeChild(currRow);
+                        allItems = (result["Websites"][currentDomain].classes).concat((result["Websites"][currentDomain].ids));
+                        document.getElementById("blockedCount").innerHTML = "Blocked Items: " + (allItems.length);
+                        ReloadPage();
+                    };
+                    td.appendChild(btn);
+                    tr.appendChild(td);
+                    document.getElementById("manuallyblocked").appendChild(tr);
+                });
+            }
+        });
+    });
+
+
+
+
 
     //Adds and removes pages from the whitelist
     $('#runOnPage').change(function(){

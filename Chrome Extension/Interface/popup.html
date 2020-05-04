@@ -1,6 +1,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="popup.css"/>
+        <link rel="stylesheet" href="bootstrap.min.css"/>
         <script src="\jquery.js"></script>
         <script src="popup.js"></script>
     </head>
@@ -13,22 +14,37 @@
         <hr/>
         <section class="options">
             <input type="checkbox" id="runOnPage"/>
-            <label for="runOnPage">Run on this page</label>
+            <label for="runOnPage">Run on this page</label><br/>
+            <span><b>Block type</b></span>
+            <br/>
+            <div class="radios">
+                <input type="radio" name="BlockType" id="BlockDisplay">
+                <label for="BlockDisplay">Collapse Items</label>
+            </div>
+            <div>
+                <input type="radio" name="BlockType" id="BlockVisibility">
+                <label for="BlockVisibility">Hide Items</label>
+            </div>
             <hr/>
-            <ol>
-                <li id="SelectElement">Block an element Element</li>
-                <li id="ResetBlockedSite">Reset Blocked : Current Site</li>
-                <li id="ResetBlockedAll">Reset blocked : All Sites</li>
-            </ol>
-            <hr>
-            <span><b>Settings</b></span>
-            <br/>
-            <span>Block type</span>
-            <br/>
-            <input type="radio" name="BlockType" id="BlockDisplay">
-            <label for="BlockDisplay">Collapse Items</label><br/>
-            <input type="radio" name="BlockType" id="BlockVisibility">
-            <label for="BlockVisibility">Hide Items</label><br/>
+            <span class="manuals">
+                <button id="SelectElement">Block an element Element</button>
+                <button id="ResetBlockedSite">Reset Blocked : Current Site</button>
+                <button id="ResetBlockedAll">Reset blocked : All Sites</button>
+                <span class="text-danger">Page will reload upon selection or reset</span>
+            </span>
+            <hr/>
+            <div class="card">
+                <div class="card-header">
+                    Manually blocked on this Site
+                    <br/>
+                    <b><span id="blockedCount">Blocked Items: 0</span></b>
+                    <span class="text-danger">Click items to remove</span>
+
+                </div>
+                <table id="manuallyblocked" class="table">
+
+                </table>
+            </div>
         </section>
     </body>
 </html>

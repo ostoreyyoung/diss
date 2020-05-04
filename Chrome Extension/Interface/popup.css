@@ -1,24 +1,27 @@
-body, html{
-    width: auto;
-    height: auto;
+html{
+    height:auto !important;
 }
-.title{
-    font-size: 20px;
-    white-space: nowrap;
+body{
+    width: 400px;
+    padding: 20px;
+    height:auto;
+    min-height: 0px;
 }
-.options{
-    font-size: 15px;
+.options .manuals button{
+    width:100%;
+    margin-top:5px;
+    margin-bottom:5px;
 }
-ol{
-    list-style: none;
-    padding:0;
+.radios{
+    margin-bottom: -10px;
 }
-li:hover{
-    background: #00000050;
-    cursor: pointer;
+.text-danger{
+    font-size: 13px;
 }
-li{
-    border:1px solid #2f2f2f;
-    margin-bottom: 5px;
-    padding: 2px;
+.card{
+    max-height: 200px;
+    overflow-y: scroll;
+}
+.card button:hover{
+    background-color:#FF000055;
 }
