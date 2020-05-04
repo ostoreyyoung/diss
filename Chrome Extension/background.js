@@ -10,6 +10,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 	function() {
 		return {cancel: true };
 	},
-	{urls: ["*://*.youtube.com/"]},
+	{urls: Blocked},
 	["blocking"]
 );

@@ -4,7 +4,7 @@
     "description": "Final Year Project - Create an online adblocker - Oliver Storey-Young C1635943",
     "permissions": ["activeTab", "declarativeContent", "storage", "webRequest", "webRequestBlocking", "http://*/", "https://*/"],
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["Blocked.js", "background.js"]
     },
     "browser_action": {
         "default_popup": "Interface/popup.html"
