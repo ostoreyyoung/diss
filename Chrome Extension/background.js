@@ -5,3 +5,11 @@ chrome.runtime.onInstalled.addListener(function(){
     storage["Settings"]["Whitelist"] = [];
     chrome.storage.sync.set(storage);
 });
+
+chrome.webRequest.onBeforeRequest.addListener(
+	function() {
+		return {cancel: true };
+	},
+	{urls: ["*://*.youtube.com/"]},
+	["blocking"]
+);
