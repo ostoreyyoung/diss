@@ -144,4 +144,31 @@ $(document).ready(function(){
             ReloadPage();
         })
     })
+
+    $('#manualDomainBlock').keyup(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        var exp = /(^\*:\/{2}\*\..+\/\*$)/;
+        console.log(exp.test(event.target.value));
+        console.log(keycode);
+        $('#manualDomainBlock').css("border",""); 
+        if(keycode == '13'){
+            if(exp.test(event.target.value)){
+                $('#manualDomainBlock').css("border","2px solid green"); 
+                chrome.storage.sync.get(["Blocked"], function(result){
+                    result["Blocked"].push(event.target.value);
+                    chrome.storage.sync.set(result, function(){
+                        $('#manualDomainBlock').val("");
+                        ReloadPage();
+                    });
+                });
+            }
+            else{
+                $('#manualDomainBlock').css("border","2px solid red"); 
+            }
+        };
+    });
 });
+
+chrome.storage.sync.get(["Blocked"], function(qwe){
+    console.log(qwe);
+})
