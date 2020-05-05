@@ -21,6 +21,7 @@ body{
 .card{
     max-height: 200px;
     overflow-y: scroll;
+    margin-bottom: 25px;
 }
 .card button:hover{
     background-color:#FF000055;

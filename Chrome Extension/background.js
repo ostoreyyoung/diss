@@ -13,6 +13,7 @@ chrome.runtime.onInstalled.addListener(function(){
 CreateBlockList();
 //Creates the blocklist from storage & file;
 function CreateBlockList(){
+    DomainsToBlock = [];
     DomainsToBlock.push("*://*.www.123123123.abcabcabc.com/*"); // need one item in there for sure
     DomainsToBlock = DomainsToBlock.concat(blocked);
     chrome.storage.sync.get(["Blocked"], function(result){
@@ -74,3 +75,17 @@ function ReloadPage(){
         chrome.tabs.sendMessage(tabs[0].id, {reload: true});
     });
 }
+
+chrome.extension.onConnect.addListener(function(port) {
+    port.onMessage.addListener(function(msg) {
+        console.log("found");
+        chrome.webRequest.onBeforeRequest.removeListener(DomainBlock);
+        CreateBlockList();
+        chrome.webRequest.onBeforeRequest.addListener(
+            DomainBlock,
+            {urls: DomainsToBlock},
+            ["blocking"]
+        );
+        ReloadPage();
+    });
+})

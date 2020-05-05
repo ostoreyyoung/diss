@@ -1,5 +1,11 @@
 $(document).ready(function(){
     
+    //Create connectionbetween popup.js and background
+    var port = chrome.extension.connect({
+        name: "Sample Communication"
+    });
+
+
     function ReloadPage(){
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             chrome.tabs.sendMessage(tabs[0].id, {reload: true});
@@ -71,6 +77,32 @@ $(document).ready(function(){
         });
     });
 
+    //Creates the table for the domains blocked, adds onlcick to handle removal
+    chrome.storage.sync.get(["Blocked"], function(result){
+        document.getElementById("blockedDomainCount").innerHTML = "Blocked Items: " + (result["Blocked"].length);
+        result["Blocked"].forEach(element => {
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            var btn = document.createElement('button');
+            btn.innerHTML = element;
+            btn.onclick = function () {
+                var index = result["Blocked"].indexOf(element);
+                result["Blocked"].splice(index,1);
+                var currRow = this.parentElement.parentElement;
+                this.parentElement.parentElement.parentElement.removeChild(currRow);
+                //Refresh listeners on background page
+                chrome.storage.sync.set(result, function(){
+                    port.postMessage("Hi BackGround");
+                });
+                document.getElementById("blockedDomainCount").innerHTML = "Blocked Items: " + (result["Blocked"].length);
+
+            }
+            td.appendChild(btn);
+            tr.appendChild(td);
+            document.getElementById("manuallyblockeddomains").appendChild(tr);
+        });
+    });
+
 
 
 
@@ -132,6 +164,7 @@ $(document).ready(function(){
             chrome.storage.sync.get(["Websites"], function(result){
                 delete result["Websites"][String(new URL(tabs[0].url).hostname)];
                 chrome.storage.sync.set(result, function(){
+                    window.location.href = "popup.html";
                     ReloadPage();
                 });
             })
@@ -141,6 +174,7 @@ $(document).ready(function(){
     //Reset all of the user selected blocked elements for every website.
     $('#ResetBlockedAll').click(function(){
         chrome.storage.sync.set({"Websites": {}} ,function(){
+            window.location.href = "popup.html";
             ReloadPage();
         })
     })

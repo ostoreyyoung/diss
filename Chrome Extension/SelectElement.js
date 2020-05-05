@@ -5,6 +5,9 @@ var currentElement;
 chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
     if (request.beginSelection == true){
+
+        $("<style type='text/css'> a{pointer-events:none;} </style>").appendTo("head");
+
         //Start selecting elements
         $(document).mousemove(function(mouse){
             $(currentElement).removeAttr("style");
@@ -18,7 +21,7 @@ function(request, sender, sendResponse) {
     }
 
     //Stop selecting
-    $(document).click(function(){
+    $(document).click(function(event){
         //Reset things
         $(document).off("mousemove");
         $(document).off("click");
