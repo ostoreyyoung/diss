@@ -4,5 +4,4 @@ var blocked = [
 "*://*.004-btr-463.mktoresp.com/*",
 "*://*.005.free-counters.co.uk/*",
 "*://*.006.free-counters.co.uk/*",
-"*://*.youtube.com/*",
 ];

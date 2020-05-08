@@ -1,3 +1,20 @@
+var x = new XMLHttpRequest();
+var webFilterList = [];
+
+x.open('GET', 'https://pastebin.com/raw/eQpGm1FL');
+x.onload = function() {
+    webFilterList = x.responseText.split("\r\n");
+};
+x.send();
+
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+      return {cancel: webFilterList.find(element => details.url.includes(element)) !== undefined}
+    },
+    {urls: ["<all_urls>"]},
+    ["blocking"]);
+
+
 var DomainsToBlock = [];
 
 chrome.runtime.onInstalled.addListener(function(){
@@ -89,3 +106,6 @@ chrome.extension.onConnect.addListener(function(port) {
         ReloadPage();
     });
 })
+
+
+
