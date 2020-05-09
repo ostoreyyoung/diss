@@ -33,6 +33,23 @@ $(document).ready(function(){
             }
         });
 
+        //Default filter
+        var UseDefaultFilter = result["Settings"]["useDefaultBlock"];
+        if(UseDefaultFilter == false){
+            document.getElementById("chk_DefaultFilter").checked = false;
+        }
+        else{
+            document.getElementById("chk_DefaultFilter").checked = true;
+        }
+
+        //Web Filter
+        SwapWebFilterStatus(result);
+
+        //Web filter url
+        document.getElementById("txt_BlockExt").value = result["Settings"]["webBlockURL"];
+        
+
+
     });
 
     chrome.storage.sync.get(["Websites"], function(result){
@@ -196,8 +213,50 @@ $(document).ready(function(){
             $(str).css("border","2px solid red"); 
         }
     });
+
+    $('#chk_DefaultFilter').change(function(event){
+        chrome.storage.sync.get(["Settings"],function(result){
+            var curr = result["Settings"]["useDefaultBlock"];
+            result["Settings"]["useDefaultBlock"] = (curr == true ? false : true);
+            chrome.storage.sync.set(result, function(){
+                ReloadPage();
+            });
+        });
+    })
+
+    $('#btn_ToggleExt').click(function(){
+        chrome.storage.sync.get(["Settings"],function(result){
+            var curr = result["Settings"]["useWebBlockURL"];
+            result["Settings"]["useWebBlockURL"] = (curr == true ? false : true);
+            chrome.storage.sync.set(result, function(){
+                ReloadPage();
+            });
+            SwapWebFilterStatus(result);
+        });
+    })
+
+    function SwapWebFilterStatus(result){
+        var UseWebBlockURL = result["Settings"]["useWebBlockURL"];
+        if(UseWebBlockURL == false){
+            document.getElementById("txt_BlockExt").disabled = true;
+            document.getElementById("btn_ToggleExt").innerHTML = "Enable Ext";
+            document.getElementById("btn_SaveExt").disabled = true;
+        }else{
+            document.getElementById("txt_BlockExt").disabled = false;
+            document.getElementById("btn_ToggleExt").innerHTML = "Disable Ext";
+            document.getElementById("btn_SaveExt").disabled = false;
+        }
+    }
+
+    $("#btn_SaveExt").click(function(){
+        chrome.storage.sync.get(["Settings"],function(result){
+            result["Settings"]["webBlockURL"] = document.getElementById("txt_BlockExt").value;
+            chrome.storage.sync.set(result, function(){
+                ReloadPage();
+            });
+        });
+    })
+
+
 });
 
-chrome.storage.sync.get(["Blocked"], function(qwe){
-    console.log(qwe);
-})

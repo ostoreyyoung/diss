@@ -14,9 +14,16 @@ body{
 #btn_ToggleExt, #btn_BlockDomain{
     width:35%;
 }
-.blocking input[type="text"]{
+#txt_DomainStr{
     float: right;
     width: 65%;
+}
+#btn_SaveExt{
+    width: 15%;
+    float: right;
+}
+#txt_BlockExt{
+    width:48%;
 }
 .blocking button, input[type="text"]{ 
     margin: 5 0;

@@ -10,7 +10,7 @@ chrome.runtime.onInstalled.addListener(function(){
     storage["Settings"]["BlockType"] = "Visibility";
     storage["Settings"]["webBlockURL"] = "";
     storage["Settings"]["useWebBlockURL"] = false;
-    storage["Settings"]["useDefaultBlock"] = false;
+    storage["Settings"]["useDefaultBlock"] = true;
     storage["Settings"]["Whitelist"] = [];
     storage["Blocked"] = [];
     chrome.storage.sync.set(storage);
