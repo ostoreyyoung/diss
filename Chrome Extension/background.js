@@ -15,9 +15,6 @@ chrome.runtime.onInstalled.addListener(function(){
     storage["Blocked"] = [];
     chrome.storage.sync.set(storage);
 
-    chrome.storage.sync.get(null,function(res){
-        console.log(res)
-    })
 });
 
 //Import filter list from url
@@ -40,17 +37,20 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 //WebRequest filterer for manual domains
-chrome.webRequest.onBeforeRequest.addListener(
-    ManualDomainBlock,
-    {urls: CreateBlockList("reset")},
-    ["blocking"]
-);
+chrome.storage.sync.get(["Blocked"], function(res){
+    manualFilterList = res["Blocked"];
+    chrome.webRequest.onBeforeRequest.addListener(
+        ManualDomainBlock,
+        {urls: manualFilterList},
+        ["blocking"]
+    );
+});
 
 //Listen for updates in manual domain blocking & act
 chrome.extension.onConnect.addListener(function(port) {
     port.onMessage.addListener(function(msg) {
         if(msg.Reset !== undefined || msg.Blocked !== undefined){
-            console.log(msg);
+            console.log(msg)
             ResetManualDomainListeners(msg);
         }
         else if(msg ="Reload"){
@@ -83,6 +83,9 @@ chrome.contextMenus.create({
 
 //returns whether to block url from manual domain blocking
 function ManualDomainBlock(){
+    console.log("here");
+    console.log(manualFilterList);
+    console.log(manualFilterList.length > 0);
     return {cancel: (manualFilterList.length > 0)};
 }
 
@@ -94,13 +97,6 @@ function CreateBlockList(obj){
     }
     else if(obj.Reset !== undefined){
         manualFilterList = obj.Reset;
-    }
-    else{
-        chrome.storage.sync.get(["Blocked"], function(result){
-            if(typeof result["Blocked"] !== 'undefined'){
-                manualFilterList = manualFilterList.concat(result["Blocked"]);
-            }
-        });
     }
     return manualFilterList;
 }
