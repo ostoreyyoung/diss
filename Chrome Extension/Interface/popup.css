@@ -11,7 +11,7 @@ body{
 .blocking button:nth-child(-n+3){
     width:100%;
 }
-.blocking button:nth-child(4){
+#btn_ToggleExt, #btn_BlockDomain{
     width:35%;
 }
 .blocking input[type="text"]{
