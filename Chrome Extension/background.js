@@ -1,55 +1,61 @@
-var x = new XMLHttpRequest();
 var webFilterList = [];
+var manualFilterList = [];
+var defaultFilterList = [];
 
-x.open('GET', 'https://pastebin.com/raw/eQpGm1FL');
-x.onload = function() {
-    webFilterList = x.responseText.split("\r\n");
-};
-x.send();
-
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-      return {cancel: webFilterList.find(element => details.url.includes(element)) !== undefined}
-    },
-    {urls: ["<all_urls>"]},
-    ["blocking"]);
-
-
-var DomainsToBlock = [];
-
+//Set up storage.sync when the extension is installed.
 chrome.runtime.onInstalled.addListener(function(){
     var storage = {};
     storage["Websites"] = {};
-    storage["Settings"] = {"BlockType" : "Visibility"};
+    storage["Settings"] = {};
+    storage["Settings"]["BlockType"] = "Visibility";
+    storage["Settings"]["webBlockURL"] = "";
+    storage["Settings"]["useWebBlockURL"] = false;
+    storage["Settings"]["useDefaultBlock"] = false;
     storage["Settings"]["Whitelist"] = [];
     storage["Blocked"] = [];
     chrome.storage.sync.set(storage);
 
+    chrome.storage.sync.get(null,function(res){
+        console.log(res)
+    })
 });
 
-CreateBlockList();
-//Creates the blocklist from storage & file;
-function CreateBlockList(){
-    DomainsToBlock = [];
-    DomainsToBlock.push("*://*.www.123123123.abcabcabc.com/*"); // need one item in there for sure
-    DomainsToBlock = DomainsToBlock.concat(blocked);
-    chrome.storage.sync.get(["Blocked"], function(result){
+//Import filter list from url
+var req = new XMLHttpRequest();
+req.open('GET', 'https://pastebin.com/raw/eQpGm1FL');
+req.onload = function() {
+    webFilterList = req.responseText.split("\r\n");
+};
+req.send();
 
-        //Check to make sure it's run on install yet
-        if(typeof result["Blocked"] !== 'undefined'){
-            DomainsToBlock = DomainsToBlock.concat(result["Blocked"]);
+//Filter requests from url
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+      return {
+          cancel: webFilterList.find(element => details.url.includes(element)) !== undefined
         }
+    },
+    {urls: ["<all_urls>"]},
+    ["blocking"]
+);
 
-        //Add initial listener
-        chrome.webRequest.onBeforeRequest.addListener(
-            DomainBlock,
-            {urls: DomainsToBlock},
-            ["blocking"]
-        );
+//WebRequest filterer for manual domains
+chrome.webRequest.onBeforeRequest.addListener(
+    ManualDomainBlock,
+    {urls: CreateBlockList("reset")},
+    ["blocking"]
+);
+
+//Listen for updates in manual domain blocking & act
+chrome.extension.onConnect.addListener(function(port) {
+    port.onMessage.addListener(function(msg) {
+        if(msg == "RemoveDomain"){
+            ResetManualDomainListeners("reset");
+        }else if(msg ="Reload"){
+            ReloadPage();
+        }
     });
-}
-
-
+});
 
 //Context menu for right click
 chrome.contextMenus.create({
@@ -63,16 +69,9 @@ chrome.contextMenus.create({
             if(result["Blocked"].includes(link) == false){
                 result["Blocked"].push(link);
                 chrome.storage.sync.set(result, function(){
-
                     //Reset listeners and update list
-                    chrome.webRequest.onBeforeRequest.removeListener(DomainBlock);
-                    CreateBlockList();
-                    chrome.webRequest.onBeforeRequest.addListener(
-                        DomainBlock,
-                        {urls: DomainsToBlock},
-                        ["blocking"]
-                    );
-                    ReloadPage();  
+                    ResetManualDomainListeners(result["Blocked"]);
+                    ReloadPage();   
                 });
 
             }
@@ -80,32 +79,44 @@ chrome.contextMenus.create({
     }
   });
 
-  
-
-//callback, needed for attatch and detatch
-function DomainBlock(){
-    return {cancel: true };
+//returns whether to block url from manual domain blocking
+function ManualDomainBlock(){
+    return {cancel: (manualFilterList.length > 0)};
 }
 
+//Creates the blocklist for manual domains blocking
+function CreateBlockList(first){
+    manualFilterList = [];
+    if(first != "reset"){
+        //replace with updated values.
+        manualFilterList = first;
+    }
+    else{
+        //Full reload on the values.
+        chrome.storage.sync.get(["Blocked"], function(result){
+            console.log("daqwe");
+            if(typeof result["Blocked"] !== 'undefined'){
+                manualFilterList = manualFilterList.concat(result["Blocked"]);
+            }
+        });
+    }
+    return manualFilterList;
+}
+
+//Resets the listener for manual domain blocking
+function ResetManualDomainListeners(val){
+    chrome.webRequest.onBeforeRequest.removeListener(ManualDomainBlock);
+    chrome.webRequest.onBeforeRequest.addListener(
+        ManualDomainBlock,
+        {urls: CreateBlockList(val)},
+        ["blocking"]
+    );
+}
+
+//Reloads the page;
 function ReloadPage(){
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {reload: true});
     });
 }
-
-chrome.extension.onConnect.addListener(function(port) {
-    port.onMessage.addListener(function(msg) {
-        console.log("found");
-        chrome.webRequest.onBeforeRequest.removeListener(DomainBlock);
-        CreateBlockList();
-        chrome.webRequest.onBeforeRequest.addListener(
-            DomainBlock,
-            {urls: DomainsToBlock},
-            ["blocking"]
-        );
-        ReloadPage();
-    });
-})
-
-
 
