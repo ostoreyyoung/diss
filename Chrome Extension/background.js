@@ -49,9 +49,11 @@ chrome.webRequest.onBeforeRequest.addListener(
 //Listen for updates in manual domain blocking & act
 chrome.extension.onConnect.addListener(function(port) {
     port.onMessage.addListener(function(msg) {
-        if(msg == "RemoveDomain"){
-            ResetManualDomainListeners("reset");
-        }else if(msg ="Reload"){
+        if(msg.Reset !== undefined || msg.Blocked !== undefined){
+            console.log(msg);
+            ResetManualDomainListeners(msg);
+        }
+        else if(msg ="Reload"){
             ReloadPage();
         }
     });
@@ -70,7 +72,7 @@ chrome.contextMenus.create({
                 result["Blocked"].push(link);
                 chrome.storage.sync.set(result, function(){
                     //Reset listeners and update list
-                    ResetManualDomainListeners(result["Blocked"]);
+                    ResetManualDomainListeners(result);
                     ReloadPage();   
                 });
 
@@ -85,16 +87,16 @@ function ManualDomainBlock(){
 }
 
 //Creates the blocklist for manual domains blocking
-function CreateBlockList(first){
+function CreateBlockList(obj){
     manualFilterList = [];
-    if(first != "reset"){
-        //replace with updated values.
-        manualFilterList = first;
+    if(obj.Blocked !== undefined){
+        manualFilterList = obj.Blocked;
+    }
+    else if(obj.Reset !== undefined){
+        manualFilterList = obj.Reset;
     }
     else{
-        //Full reload on the values.
         chrome.storage.sync.get(["Blocked"], function(result){
-            console.log("daqwe");
             if(typeof result["Blocked"] !== 'undefined'){
                 manualFilterList = manualFilterList.concat(result["Blocked"]);
             }

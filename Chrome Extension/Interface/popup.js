@@ -7,9 +7,7 @@ $(document).ready(function(){
 
 
     function ReloadPage(){
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, {reload: true});
-        });
+        port.postMessage("Reload");
     }
     
 
@@ -92,7 +90,7 @@ $(document).ready(function(){
                 this.parentElement.parentElement.parentElement.removeChild(currRow);
                 //Refresh listeners on background page
                 chrome.storage.sync.set(result, function(){
-                    port.postMessage("Hi BackGround");
+                    port.postMessage({Reset : result["Blocked"]});
                 });
                 document.getElementById("blockedDomainCount").innerHTML = "Blocked Items: " + (result["Blocked"].length);
 
@@ -179,27 +177,24 @@ $(document).ready(function(){
         })
     })
 
-    $('#manualDomainBlock').keyup(function(event){
-        var keycode = (event.keyCode ? event.keyCode : event.which);
+    $('#btn_BlockDomain').click(function(event){
         var exp = /(^\*:\/{2}\*\..+\/\*$)/;
-        console.log(exp.test(event.target.value));
-        console.log(keycode);
-        $('#manualDomainBlock').css("border",""); 
-        if(keycode == '13'){
-            if(exp.test(event.target.value)){
-                $('#manualDomainBlock').css("border","2px solid green"); 
-                chrome.storage.sync.get(["Blocked"], function(result){
-                    result["Blocked"].push(event.target.value);
-                    chrome.storage.sync.set(result, function(){
-                        $('#manualDomainBlock').val("");
-                        ReloadPage();
-                    });
+        var str = document.getElementById("txt_DomainStr");
+        $(str).css("border",""); 
+        if(exp.test(str.value)){
+            $(str).css("border","2px solid green"); 
+            chrome.storage.sync.get(["Blocked"], function(result){
+                result["Blocked"].push(str.value);
+                chrome.storage.sync.set(result, function(){
+                    $(str).val("");
+                    port.postMessage({Reset : result["Blocked"]});
+                    ReloadPage();
                 });
-            }
-            else{
-                $('#manualDomainBlock').css("border","2px solid red"); 
-            }
-        };
+            });
+        }
+        else{
+            $(str).css("border","2px solid red"); 
+        }
     });
 });
 
