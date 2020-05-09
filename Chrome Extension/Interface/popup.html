@@ -2,37 +2,44 @@
     <head>
         <link rel="stylesheet" href="popup.css"/>
         <link rel="stylesheet" href="bootstrap.min.css"/>
+
         <script src="\jquery.js"></script>
         <script src="popup.js"></script>
+        
     </head>
     <body>
         <section class="title">
             <span>Oliver SY - C1635943<span>
             </span>Ad-Blocking Extension</span>
         </section>
+
         <hr/>
-        <section class="options">
+
+        <section class="toggles">
             <input type="checkbox" id="runOnPage"/>
             <label for="runOnPage">Run on this page</label><br/>
-            <span><b>Block type</b></span>
-            <br/>
-            <div class="radios">
+            <div class="radio-buttons">
                 <input type="radio" name="BlockType" id="BlockDisplay">
                 <label for="BlockDisplay">Collapse Items</label>
-            </div>
-            <div>
+                <br/>
                 <input type="radio" name="BlockType" id="BlockVisibility">
                 <label for="BlockVisibility">Hide Items</label>
             </div>
-            <hr/>
-            <span class="manuals">
-                <button id="SelectElement">Block an element Element</button>
-                <button id="ResetBlockedSite">Reset Blocked : Current Site</button>
-                <button id="ResetBlockedAll">Reset blocked : All Sites</button>
-                <input type="text" id="manualDomainBlock" placeholder="*://*.www.google.com/*"/>
-                <span class="text-danger">Page will reload upon selection or reset</span>
-            </span>
-            <hr/>
+        </section>
+
+        <hr/>
+
+        <section class="Blocking">
+            <button id="SelectElement">Block an element Element</button>
+            <button id="ResetBlockedSite">Reset Blocked : Current Site</button>
+            <button id="ResetBlockedAll">Reset blocked : All Sites</button>
+            <button type="button">Block Domain</button>
+            <input type="text" id="manualDomainBlock" placeholder="*://*.www.google.com/*"/>
+        </section>
+
+        <hr/>
+
+        <section class="cards">
             <div class="card">
                 <div class="card-header">
                     Manually blocked elements on this site
@@ -56,8 +63,7 @@
 
                 </table>
             </div>
-
-
         </section>
+
     </body>
 </html>

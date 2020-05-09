@@ -7,22 +7,17 @@ body{
     height:auto;
     min-height: 0px;
 }
-.options .manuals button, .options .manuals input[type="text"]{
+
+.blocking button:nth-child(-n+3){
     width:100%;
-    margin-top:5px;
-    margin-bottom:5px;
 }
-.radios{
-    margin-bottom: -10px;
+.blocking button:nth-child(4){
+    width:35%;
 }
-.text-danger{
-    font-size: 13px;
+.blocking input[type="text"]{
+    float: right;
+    width: 65%;
 }
-.card{
-    max-height: 200px;
-    overflow-y: scroll;
-    margin-bottom: 25px;
-}
-.card button:hover{
-    background-color:#FF000055;
+.blocking button, input[type="text"]{ 
+    margin: 5 0;
 }
