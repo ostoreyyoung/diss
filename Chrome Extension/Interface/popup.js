@@ -219,6 +219,7 @@ $(document).ready(function(){
             var curr = result["Settings"]["useDefaultBlock"];
             result["Settings"]["useDefaultBlock"] = (curr == true ? false : true);
             chrome.storage.sync.set(result, function(){
+                port.postMessage("DefaultToggle");
                 ReloadPage();
             });
         });

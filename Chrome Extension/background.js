@@ -10,7 +10,7 @@ chrome.runtime.onInstalled.addListener(function(){
     storage["Settings"]["BlockType"] = "Visibility";
     storage["Settings"]["webBlockURL"] = "";
     storage["Settings"]["useWebBlockURL"] = false;
-    storage["Settings"]["useDefaultBlock"] = true;
+    storage["Settings"]["useDefaultBlock"] = false;
     storage["Settings"]["Whitelist"] = [];
     storage["Blocked"] = [];
     chrome.storage.sync.set(storage);
@@ -46,9 +46,12 @@ function ResetWebBlock(){
 
 
 //WebRequest filterer for manual domains
-chrome.storage.sync.get(["Blocked"], function(res){
+chrome.storage.sync.get(null, function(res){
     manualFilterList = res["Blocked"];
     if(manualFilterList !== undefined){
+        if(res["Settings"]["useDefaultBlock"] === true){
+            manualFilterList.concat(blocked);
+        }
         chrome.webRequest.onBeforeRequest.addListener(
             ManualDomainBlock,
             {urls: manualFilterList},
@@ -61,7 +64,6 @@ chrome.storage.sync.get(["Blocked"], function(res){
 chrome.extension.onConnect.addListener(function(port) {
     port.onMessage.addListener(function(msg) {
         if(msg.Reset !== undefined || msg.Blocked !== undefined){
-            console.log(msg)
             ResetManualDomainListeners(msg);
         }
         else if(msg == "Reload"){
@@ -69,6 +71,9 @@ chrome.extension.onConnect.addListener(function(port) {
         }
         else if(msg == "WebFilterUpdate"){
             ResetWebBlock();
+        }
+        else if(msg == "DefaultToggle"){
+            ResetManualDomainListeners("text");
         }
     });
 });
@@ -105,25 +110,23 @@ var WebDomainBlock = function(details) {
 }
 
 //Creates the blocklist for manual domains blocking
-function CreateBlockList(obj){
-    manualFilterList = [];
-    if(obj.Blocked !== undefined){
-        manualFilterList = obj.Blocked;
-    }
-    else if(obj.Reset !== undefined){
-        manualFilterList = obj.Reset;
-    }
-    return manualFilterList;
-}
 
 //Resets the listener for manual domain blocking
-function ResetManualDomainListeners(val){
-    chrome.webRequest.onBeforeRequest.removeListener(ManualDomainBlock);
-    chrome.webRequest.onBeforeRequest.addListener(
-        ManualDomainBlock,
-        {urls: CreateBlockList(val)},
-        ["blocking"]
-    );
+function ResetManualDomainListeners(obj){
+    chrome.storage.sync.get(null, function(res){
+        manualFilterList = [];
+        manualFilterList = res["Blocked"];
+        if(res["Settings"]["useDefaultBlock"] === true){
+            manualFilterList = manualFilterList.concat(blocked);
+        }
+    
+        chrome.webRequest.onBeforeRequest.removeListener(ManualDomainBlock);
+        chrome.webRequest.onBeforeRequest.addListener(
+            ManualDomainBlock,
+            {urls: manualFilterList},
+            ["blocking"]
+        );
+    })
 }
 
 //Reloads the page;
