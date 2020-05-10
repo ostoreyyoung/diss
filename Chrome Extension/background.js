@@ -17,33 +17,44 @@ chrome.runtime.onInstalled.addListener(function(){
 
 });
 
-//Import filter list from url
-var req = new XMLHttpRequest();
-req.open('GET', 'https://pastebin.com/raw/eQpGm1FL');
-req.onload = function() {
-    webFilterList = req.responseText.split("\r\n");
-};
-req.send();
+ResetWebBlock();
 
-//Filter requests from url
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-      return {
-          cancel: webFilterList.find(element => details.url.includes(element)) !== undefined
+function ResetWebBlock(){
+    chrome.storage.sync.get(["Settings"], function(res){
+        if(res["Settings"] !== undefined && res["Settings"]["useWebBlockURL"] === true && res["Settings"]["webBlockURL"] != ""){
+            var req = new XMLHttpRequest();
+            req.open('GET', res["Settings"]["webBlockURL"]);
+            req.onload = function() {
+                webFilterList = [];
+                webFilterList = req.responseText.split("\r\n");
+            };
+            req.send();
+            chrome.webRequest.onBeforeRequest.removeListener(WebDomainBlock);
+            chrome.webRequest.onBeforeRequest.addListener(
+                WebDomainBlock,
+                {urls: ["<all_urls>"]},
+                ["blocking"]
+            );
         }
-    },
-    {urls: ["<all_urls>"]},
-    ["blocking"]
-);
+        else if(res["Settings"] !== undefined && res["Settings"]["useWebBlockURL"] === false){
+            console.log("here");
+            chrome.webRequest.onBeforeRequest.removeListener(WebDomainBlock);
+        }
+    })
+}
+
+
 
 //WebRequest filterer for manual domains
 chrome.storage.sync.get(["Blocked"], function(res){
     manualFilterList = res["Blocked"];
-    chrome.webRequest.onBeforeRequest.addListener(
-        ManualDomainBlock,
-        {urls: manualFilterList},
-        ["blocking"]
-    );
+    if(manualFilterList !== undefined){
+        chrome.webRequest.onBeforeRequest.addListener(
+            ManualDomainBlock,
+            {urls: manualFilterList},
+            ["blocking"]
+        );
+    }
 });
 
 //Listen for updates in manual domain blocking & act
@@ -53,8 +64,11 @@ chrome.extension.onConnect.addListener(function(port) {
             console.log(msg)
             ResetManualDomainListeners(msg);
         }
-        else if(msg ="Reload"){
+        else if(msg == "Reload"){
             ReloadPage();
+        }
+        else if(msg == "WebFilterUpdate"){
+            ResetWebBlock();
         }
     });
 });
@@ -83,10 +97,11 @@ chrome.contextMenus.create({
 
 //returns whether to block url from manual domain blocking
 function ManualDomainBlock(){
-    console.log("here");
-    console.log(manualFilterList);
-    console.log(manualFilterList.length > 0);
     return {cancel: (manualFilterList.length > 0)};
+}
+
+var WebDomainBlock = function(details) {
+    return {cancel: webFilterList.find(element => details.url.includes(element)) !== undefined}
 }
 
 //Creates the blocklist for manual domains blocking

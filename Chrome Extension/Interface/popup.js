@@ -229,6 +229,7 @@ $(document).ready(function(){
             var curr = result["Settings"]["useWebBlockURL"];
             result["Settings"]["useWebBlockURL"] = (curr == true ? false : true);
             chrome.storage.sync.set(result, function(){
+                port.postMessage("WebFilterUpdate");
                 ReloadPage();
             });
             SwapWebFilterStatus(result);
@@ -252,6 +253,7 @@ $(document).ready(function(){
         chrome.storage.sync.get(["Settings"],function(result){
             result["Settings"]["webBlockURL"] = document.getElementById("txt_BlockExt").value;
             chrome.storage.sync.set(result, function(){
+                port.postMessage("WebFilterUpdate");
                 ReloadPage();
             });
         });
