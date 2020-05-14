@@ -32,6 +32,7 @@ function(request, sender, sendResponse) {
     })
 });
 
+//Stores the selected element.
 function StoreElements(){
     //storage prep
     var classesToBlock = "";

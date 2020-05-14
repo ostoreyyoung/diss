@@ -14,14 +14,16 @@ chrome.runtime.onInstalled.addListener(function(){
     storage["Settings"]["Whitelist"] = [];
     storage["Blocked"] = [];
     chrome.storage.sync.set(storage);
-
 });
 
+//Initialise the Web filter block when chrome is opened.
 ResetWebBlock();
 
+//Creates listeners used to block requests related to the externally loaded block list.
 function ResetWebBlock(){
     chrome.storage.sync.get(["Settings"], function(res){
         if(res["Settings"] !== undefined && res["Settings"]["useWebBlockURL"] === true && res["Settings"]["webBlockURL"] != ""){
+            //Send a request and recieve an array of strings
             var req = new XMLHttpRequest();
             req.open('GET', res["Settings"]["webBlockURL"]);
             req.onload = function() {
@@ -29,21 +31,19 @@ function ResetWebBlock(){
                 webFilterList = req.responseText.split("\r\n");
             };
             req.send();
+            //Reset listeners
             chrome.webRequest.onBeforeRequest.removeListener(WebDomainBlock);
             chrome.webRequest.onBeforeRequest.addListener(
-                WebDomainBlock,
+                WebDomainBlock, 
                 {urls: ["<all_urls>"]},
                 ["blocking"]
             );
         }
         else if(res["Settings"] !== undefined && res["Settings"]["useWebBlockURL"] === false){
-            console.log("here");
             chrome.webRequest.onBeforeRequest.removeListener(WebDomainBlock);
         }
     })
 }
-
-
 
 //WebRequest filterer for manual domains
 chrome.storage.sync.get(null, function(res){
@@ -60,7 +60,7 @@ chrome.storage.sync.get(null, function(res){
     }
 });
 
-//Listen for updates in manual domain blocking & act
+//Listens for incoming messages and starts functions accordingly.
 chrome.extension.onConnect.addListener(function(port) {
     port.onMessage.addListener(function(msg) {
         if(msg.Reset !== undefined || msg.Blocked !== undefined){
@@ -105,12 +105,13 @@ function ManualDomainBlock(){
     return {cancel: (manualFilterList.length > 0)};
 }
 
+//returns whether the url should be blocked
+//If the url contains a string loaded from the external block list.
 var WebDomainBlock = function(details) {
     return {cancel: webFilterList.find(element => details.url.includes(element)) !== undefined}
 }
 
 //Creates the blocklist for manual domains blocking
-
 //Resets the listener for manual domain blocking
 function ResetManualDomainListeners(obj){
     chrome.storage.sync.get(null, function(res){
@@ -135,4 +136,3 @@ function ReloadPage(){
         chrome.tabs.sendMessage(tabs[0].id, {reload: true});
     });
 }
-
